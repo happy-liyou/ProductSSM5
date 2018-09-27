@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ll.dao.ProductMapper">
+	
+	<select id="queryProduct" resultMap="ProductMap">
+		select * from product where id=#{id}
+	</select>
+	<resultMap type="com.ll.bean.Product" id="ProductMap" >
+		<result property="id" column="id"/>
+		<result property="name" column="name"/>
+		<result property="price" column="price"/>
+		<result property="createtime" column="createtime"/>
+		<result property="detaile" column="detaile"/>
+		<result property="cids" column="cids"/>
+		<collection property="categories" column="id" select="queryCategories" ></collection>
+	</resultMap>
+	<select id="queryCategories" resultType="com.ll.bean.Category">
+		select * from category where id in(
+		  select cid from product_category where pid=#{id}
+		)
+	</select>
+	
+	<select id="queryProducts" resultType="com.ll.bean.Product">
+		select * from product 
+	</select>
+	
+	<insert id="insertProduct" useGeneratedKeys="true" keyProperty="id">
+		insert into product(name,price,createtime,detail) values (#{name},#{price},#{createtime},#{detail})
+	</insert>
+	
+	<insert id="insertProduct_category">
+		insert into product_category(pid,cid) values 
+		<foreach collection="cids" item="cid" separator=",">
+			(#{pid},#{cid})
+		</foreach>
+	</insert>
+	
+	<delete id="deleteProduct">
+		delete  from product where id=#{id}
+	</delete>
+	
+	<delete id="deleteProduct_category">
+		delete  from product_category where pid=#{pid}
+	</delete>
+		
+	
+	<update id="updateProduct">
+		update product set name=#{name},price=#{price},createtime=#{createtime},detail=#{detail} where id=#{id}
+	</update>
+	
+	<update id="updateProduct_category">
+		update  product_category set cid=#{cid} where pid=#{pid}
+	</update>
+	
+	<select id="queryAllCategories" resultType="com.ll.bean.Category">
+		select * from category
+	</select>
+	
+</mapper>
